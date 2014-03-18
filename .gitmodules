@@ -1,0 +1,3 @@
+[submodule "include/predis"]
+	path = include/predis
+	url = https://github.com/nrk/predis.git
