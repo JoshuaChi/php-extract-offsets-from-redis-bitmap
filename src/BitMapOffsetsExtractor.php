@@ -11,7 +11,18 @@ class BitMapOffsetsExtractor
 {
     private $threshold;
     private $debug;
+    private $unpackTakes=0;
+    private $convertTakes=0;
+    private $findSubTakes=0;
 
+    /**
+     * @param threshold - the batch size we will unpack. 
+     *     Let say if the data is 101 length, and the 
+     *     threhold is 10, so will do 11 times to finish 
+     *     the process.
+     * @param debug - true/fasle
+     *
+     */
     public function __construct($threshold=1000, $debug=false)
     {
       $this->threshold = $threshold;
@@ -22,27 +33,27 @@ class BitMapOffsetsExtractor
       if($this->debug) {
         $t1 = microtime(true);
       }
+
       $result = array();
-      $len = strlen($value);
-      for($i = 0; $i < $len+$this->threshold; $i = $i+$this->threshold){ 
+
+      $len = strlen($value) + $this->threshold;
+
+      for($i = 0; $i < $len; $i = $i+$this->threshold){ 
         if($this->debug) {
           $t1 = microtime(true);
         }
         $limit = $this->threshold;
-        if ($i > $len) {
-          $limit = $i - $len;
-        }
-        $val = unpack("c*", substr($value,$i, $limit));
+        $val = unpack("C*", substr($value,$i, $limit));
 
         if($this->debug) {
           $t2 = microtime(true);
-          printf("unpack takes: %f mini second\n", ($t2-$t1)*1000);
+          $this->unpackTakes =+ ($t2-$t1)*1000;
         }
 
         //pass empty array list quickly
         $filterdAry = array_filter($val);
 
-        if(count($filterdAry)> 0) {
+        if(!empty($filterdAry)) {
           foreach($filterdAry as $shift => $top) {
             //pass single empty array quickly
             if(empty($top)) {
@@ -56,7 +67,7 @@ class BitMapOffsetsExtractor
 
             if($this->debug) {
               $t2 = microtime(true);
-              printf("base_convert takes: %f mini second\n", ($t2-$t1)*1000);
+              $this->convertTakes =+ ($t2-$t1)*1000;
               $t1 = microtime(true);
             }
 
@@ -68,14 +79,18 @@ class BitMapOffsetsExtractor
 
             if($this->debug) {
               $t2 = microtime(true);
-              printf("find sub-string offset takes: %f mini second\n", ($t2-$t1)*1000);
+              $this->findSubTakes =+ ($t2-$t1)*1000;
             }
           }
         }
       }
       if($this->debug) {
         $t2 = microtime(true);
-        printf("total takes: %f mini second\n", ($t2-$t1)*1000);
+        printf("unpack takes: %f ms; convert takes: %f ms; find sub str takes: %f ms; total takes: %f ms\n", 
+          $this->unpackTakes, 
+          $this->convertTakes, 
+          $this->findSubTakes,
+          ($t2-$t1)*1000);
       }
       return $result;
     }

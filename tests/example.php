@@ -11,11 +11,13 @@ $client = new Predis\Client(
   )
 );
 echo "threshold 1\n";
-$data = $client->get('test');
+$start_memory = memory_get_usage();
+$data = $client->get('t10');
+echo "Mem: ".(memory_get_usage() - $start_memory)/(1024*1024)." MB \n";
 
 
 $t1 = microtime(true);
-$extractor = new BitMapOffsetsExtractor(1);
+$extractor = new BitMapOffsetsExtractor(1, true);
 $ary = $extractor->getOffsetsArray($data);
 $t2 = microtime(true);
 var_dump(count($ary));
@@ -24,7 +26,7 @@ echo "-----------\n";
 echo "threshold 1000\n";
 $t1 = microtime(true);
 $t1 = microtime(true);
-$extractor = new BitMapOffsetsExtractor(1000);
+$extractor = new BitMapOffsetsExtractor(1000, true);
 $ary = $extractor->getOffsetsArray($data);
 $t2 = microtime(true);
 var_dump(count($ary));
@@ -33,7 +35,7 @@ echo "-----------\n";
 echo "threshold 2000\n";
 $t1 = microtime(true);
 $t1 = microtime(true);
-$extractor = new BitMapOffsetsExtractor(2000);
+$extractor = new BitMapOffsetsExtractor(2000, true);
 $ary = $extractor->getOffsetsArray($data);
 $t2 = microtime(true);
 var_dump(count($ary));
