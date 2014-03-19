@@ -14,6 +14,7 @@ Memory: 8GB 1333 MHz DDR3
 
 Prepare:
 
+<pre>
 $ setbit test 2000000 1
 
 $ setbit test 2000001 1
@@ -21,6 +22,8 @@ $ setbit test 2000001 1
 $ …
 
 $ setbit test 2020000 1
+
+</pre>
 
 [Result]
 
