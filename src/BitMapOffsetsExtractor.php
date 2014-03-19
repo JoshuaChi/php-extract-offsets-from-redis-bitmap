@@ -24,34 +24,54 @@ class BitMapOffsetsExtractor
       }
       $result = array();
       $len = strlen($value);
-      for($i = 0; $i < $len; $i = $i+$this->threshold){ 
+      for($i = 0; $i < $len+$this->threshold; $i = $i+$this->threshold){ 
         if($this->debug) {
           $t1 = microtime(true);
         }
-        $val = unpack("c*", substr($value,$i, $this->threshold));
+        $limit = $this->threshold;
+        if ($i > $len) {
+          $limit = $i - $len;
+        }
+        $val = unpack("c*", substr($value,$i, $limit));
+
         if($this->debug) {
           $t2 = microtime(true);
           printf("unpack takes: %f mini second\n", ($t2-$t1)*1000);
         }
-        if($val[1] != 0) {
-          if($this->debug) {
-            $t1 = microtime(true);
-          }
-          $binary = str_pad(base_convert($val[1], 10, 2), 8, "0", STR_PAD_LEFT);
-          if($this->debug) {
-            $t2 = microtime(true);
-            printf("base_convert takes: %f mini second\n", ($t2-$t1)*1000);
-          }
-          if($this->debug) {
-            $t1 = microtime(true);
-          }
-          $pos = -1;
-          while (($pos = strpos($binary, "1", $pos+1)) !== false) {
-            array_push($result, ($i*8 + $pos));
-          }
-          if($this->debug) {
-            $t2 = microtime(true);
-            printf("find sub-string offset takes: %f mini second\n", ($t2-$t1)*1000);
+        if($this->threshold > 1) {
+          $filterdAry = array_filter($val);
+        }
+        else{
+          $filterdAry = $val;
+        }
+
+        if(count($filterdAry)> 0) {
+
+          $shift=0;
+          while($top = array_shift($filterdAry)) {
+            if($this->debug) {
+              $t1 = microtime(true);
+            }
+
+            $binary = str_pad(base_convert($top, 10, 2), 8, "0", STR_PAD_LEFT);
+
+            if($this->debug) {
+              $t2 = microtime(true);
+              printf("base_convert takes: %f mini second\n", ($t2-$t1)*1000);
+              $t1 = microtime(true);
+            }
+
+            $pos = -1;
+            while (($pos = strpos($binary, "1", $pos+1)) !== false) {
+              array_push($result, (($i+$shift)*8 + $pos));
+            }
+
+
+            if($this->debug) {
+              $t2 = microtime(true);
+              printf("find sub-string offset takes: %f mini second\n", ($t2-$t1)*1000);
+            }
+            $shift++;
           }
         }
       }

@@ -13,7 +13,7 @@ $client = new Predis\Client(
 
 $data = $client->get('test');
 $t1 = microtime(true);
-$extractor = new BitMapOffsetsExtractor();
+$extractor = new BitMapOffsetsExtractor(5000);
 $ary = $extractor->getOffsetsArray($data);
 $t2 = microtime(true);
 var_dump($ary);
