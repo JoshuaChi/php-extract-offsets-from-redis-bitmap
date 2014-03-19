@@ -38,17 +38,16 @@ class BitMapOffsetsExtractor
           $t2 = microtime(true);
           printf("unpack takes: %f mini second\n", ($t2-$t1)*1000);
         }
-        if($this->threshold > 1) {
-          $filterdAry = array_filter($val);
-        }
-        else{
-          $filterdAry = $val;
-        }
+
+        //pass empty array list quickly
+        $filterdAry = array_filter($val);
 
         if(count($filterdAry)> 0) {
-
-          $shift=0;
-          while($top = array_shift($filterdAry)) {
+          foreach($filterdAry as $shift => $top) {
+            //pass single empty array quickly
+            if(empty($top)) {
+                continue;
+            }
             if($this->debug) {
               $t1 = microtime(true);
             }
@@ -71,7 +70,6 @@ class BitMapOffsetsExtractor
               $t2 = microtime(true);
               printf("find sub-string offset takes: %f mini second\n", ($t2-$t1)*1000);
             }
-            $shift++;
           }
         }
       }

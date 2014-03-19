@@ -10,11 +10,31 @@ $client = new Predis\Client(
       'port'     => 6379
   )
 );
-
+echo "threshold 1\n";
 $data = $client->get('test');
+
+
 $t1 = microtime(true);
-$extractor = new BitMapOffsetsExtractor(5000);
+$extractor = new BitMapOffsetsExtractor(1);
 $ary = $extractor->getOffsetsArray($data);
 $t2 = microtime(true);
-var_dump($ary);
+var_dump(count($ary));
+printf("takes %f\n", ($t2-$t1));
+echo "-----------\n";
+echo "threshold 1000\n";
+$t1 = microtime(true);
+$t1 = microtime(true);
+$extractor = new BitMapOffsetsExtractor(1000);
+$ary = $extractor->getOffsetsArray($data);
+$t2 = microtime(true);
+var_dump(count($ary));
+printf("takes %f\n", ($t2-$t1));
+echo "-----------\n";
+echo "threshold 2000\n";
+$t1 = microtime(true);
+$t1 = microtime(true);
+$extractor = new BitMapOffsetsExtractor(2000);
+$ary = $extractor->getOffsetsArray($data);
+$t2 = microtime(true);
+var_dump(count($ary));
 printf("takes %f\n", ($t2-$t1));
